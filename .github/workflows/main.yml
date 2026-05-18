@@ -1,0 +1,17 @@
+name: Build etcd Binary
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download etcd binary
+      run: |
+        curl -L https://github.com/etcd-io/etcd/releases/download/v3.5.14/etcd-v3.5.14-linux-amd64.tar.gz -o etcd.tar.gz
+        tar xzf etcd.tar.gz
+        mv etcd-v3.5.14-linux-amd64/etcd etcd
+        chmod +x etcd
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: etcd-binary
+        path: etcd
