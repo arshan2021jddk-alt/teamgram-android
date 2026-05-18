@@ -263,6 +263,13 @@ public class ConnectionsManager extends BaseController {
             userPremium = getUserConfig().getCurrentUser().premium;
         }
         init(SharedConfig.buildVersion(), TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, FileLog.getNetworkLogPath(), pushString, fingerprint, timezoneOffset, getUserConfig().getClientUserId(), userPremium, enablePushConnection);
+
+        // تنظیم دستی آدرس و پورت دیتاسنترها برای اتصال به سرور Teamgram
+        applyDatacenterAddress(1, "5.42.217.167", 20020);
+        applyDatacenterAddress(2, "5.42.217.167", 20020);
+        applyDatacenterAddress(3, "5.42.217.167", 20020);
+        applyDatacenterAddress(4, "5.42.217.167", 20020);
+        applyDatacenterAddress(5, "5.42.217.167", 20020);
     }
 
     private String getRegId() {
@@ -471,16 +478,12 @@ public class ConnectionsManager extends BaseController {
 
     private void listen(int requestToken, RequestDelegateInternal onComplete, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket) {
         requestCallbacks.put(requestToken, new RequestCallbacks(onComplete, onQuickAck, onWriteToSocket));
-//        FileLog.d("{rc} listen(" + currentAccount + ", " + requestToken + "): " + requestCallbacks.size() + " requests' callbacks");
     }
 
     private void listenCancel(int requestToken, Runnable onCancelled) {
         RequestCallbacks callbacks = requestCallbacks.get(requestToken);
         if (callbacks != null) {
             callbacks.onCancelled = onCancelled;
-//            FileLog.d("{rc} listenCancel(" + currentAccount + ", " + requestToken + "): " + requestCallbacks.size() + " requests' callbacks");
-        } else {
-//            FileLog.d("{rc} listenCancel(" + currentAccount + ", " + requestToken + "): callback not found, " + requestCallbacks.size() + " requests' callbacks");
         }
     }
 
@@ -494,13 +497,9 @@ public class ConnectionsManager extends BaseController {
                     callbacks.onCancelled.run();
                 }
                 connectionsManager.requestCallbacks.remove(requestToken);
-//                FileLog.d("{rc} onRequestClear(" + currentAccount + ", " + requestToken + ", " + cancelled + "): request to cancel is found " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
-            } else {
-//                FileLog.d("{rc} onRequestClear(" + currentAccount + ", " + requestToken + ", " + cancelled + "): request to cancel is not found " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
             }
         } else if (callbacks != null) {
             connectionsManager.requestCallbacks.remove(requestToken);
-//            FileLog.d("{rc} onRequestClear(" + currentAccount + ", " + requestToken + ", " + cancelled + "): " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
         }
     }
 
@@ -513,9 +512,6 @@ public class ConnectionsManager extends BaseController {
             if (callbacks.onComplete != null) {
                 callbacks.onComplete.run(response, errorCode, errorText, networkType, timestamp, requestMsgId, dcId);
             }
-//            FileLog.d("{rc} onRequestComplete(" + currentAccount + ", " + requestToken + "): found request " + requestToken + ", " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
-        } else {
-//            FileLog.d("{rc} onRequestComplete(" + currentAccount + ", " + requestToken + "): not found request " + requestToken + "! " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
         }
     }
 
@@ -527,9 +523,6 @@ public class ConnectionsManager extends BaseController {
             if (callbacks.onQuickAck != null) {
                 callbacks.onQuickAck.run();
             }
-//            FileLog.d("{rc} onRequestQuickAck(" + currentAccount + ", " + requestToken + "): found request " + requestToken + ", " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
-        } else {
-//            FileLog.d("{rc} onRequestQuickAck(" + currentAccount + ", " + requestToken + "): not found request " + requestToken + "! " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
         }
     }
 
@@ -541,9 +534,6 @@ public class ConnectionsManager extends BaseController {
             if (callbacks.onWriteToSocket != null) {
                 callbacks.onWriteToSocket.run();
             }
-//            FileLog.d("{rc} onRequestWriteToSocket(" + currentAccount + ", " + requestToken + "): found request " + requestToken + ", " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
-        } else {
-//            FileLog.d("{rc} onRequestWriteToSocket(" + currentAccount + ", " + requestToken + "): not found request " + requestToken + "! " + connectionsManager.requestCallbacks.size() + " requests' callbacks");
         }
     }
 
@@ -690,7 +680,7 @@ public class ConnectionsManager extends BaseController {
     }
 
     public boolean isTestBackend() {
-        return native_isTestBackend(currentAccount) != 0;
+        return true;
     }
 
     public void resumeNetworkMaybe() {
@@ -836,44 +826,11 @@ public class ConnectionsManager extends BaseController {
     }
 
     public static void onRequestNewServerIpAndPort(final int second, final int currentAccount) {
-        Utilities.globalQueue.postRunnable(() -> {
-            boolean networkOnline = ApplicationLoader.isNetworkOnline();
-            Utilities.stageQueue.postRunnable(() -> {
-                FileLog.d("13. currentTask == " + currentTask);
-                if (currentTask != null || second == 0 && Math.abs(lastDnsRequestTime - System.currentTimeMillis()) < 10000 || !networkOnline) {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("don't start task, current task = " + currentTask + " next task = " + second + " time diff = " + Math.abs(lastDnsRequestTime - System.currentTimeMillis()) + " network = " + ApplicationLoader.isNetworkOnline());
-                    }
-                    return;
-                }
-                lastDnsRequestTime = System.currentTimeMillis();
-                if (second == 2) {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("start mozilla txt task");
-                    }
-                    MozillaDnsLoadTask task = new MozillaDnsLoadTask(currentAccount);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-                    FileLog.d("9. currentTask = mozilla");
-                    currentTask = task;
-                } else if (second == 1) {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("start google txt task");
-                    }
-                    GoogleDnsLoadTask task = new GoogleDnsLoadTask(currentAccount);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-                    FileLog.d("11. currentTask = dnstxt");
-                    currentTask = task;
-                } else {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("start firebase task");
-                    }
-                    FirebaseTask task = new FirebaseTask(currentAccount);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-                    FileLog.d("12. currentTask = firebase");
-                    currentTask = task;
-                }
-            });
-        });
+        // دیگر هیچ وظیفه‌ای برای دریافت DNS یا فایربیس اجرا نمی‌شود.
+        // آدرس‌ها قبلاً به صورت دستی تنظیم شده‌اند.
+        if (BuildVars.LOGS_ENABLED) {
+            FileLog.d("DNS update requested but ignored - using hardcoded IP");
+        }
     }
 
     public static void onProxyError() {
