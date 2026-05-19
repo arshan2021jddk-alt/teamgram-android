@@ -117,6 +117,7 @@ public class ConnectionsManager extends BaseController {
 
     private long lastPauseTime = System.currentTimeMillis();
     private boolean appPaused = true;
+    private ArrayList<TLRPC.TL_dcOption> dcOptions;
     private boolean isUpdating;
     private int connectionState;
     private AtomicInteger lastRequestToken = new AtomicInteger(1);
@@ -270,6 +271,9 @@ public class ConnectionsManager extends BaseController {
         applyDatacenterAddress(3, "5.42.217.167", 10443);
         applyDatacenterAddress(4, "5.42.217.167", 10443);
         applyDatacenterAddress(5, "5.42.217.167", 10443);
+                
+        this.dcOptions = new ArrayList<>();
+        this.dcOptions.add(new DcOption(1, "5.42.217.167", 10443, false, false));
     }
 
     private String getRegId() {
