@@ -265,11 +265,11 @@ public class ConnectionsManager extends BaseController {
         init(SharedConfig.buildVersion(), TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, FileLog.getNetworkLogPath(), pushString, fingerprint, timezoneOffset, getUserConfig().getClientUserId(), userPremium, enablePushConnection);
 
         // تنظیم دستی آدرس و پورت دیتاسنترها برای اتصال به سرور Teamgram
-        applyDatacenterAddress(1, "5.42.217.167", 20020);
-        applyDatacenterAddress(2, "5.42.217.167", 20020);
-        applyDatacenterAddress(3, "5.42.217.167", 20020);
-        applyDatacenterAddress(4, "5.42.217.167", 20020);
-        applyDatacenterAddress(5, "5.42.217.167", 20020);
+        applyDatacenterAddress(1, "5.42.217.167", 10443);
+        applyDatacenterAddress(2, "5.42.217.167", 10443);
+        applyDatacenterAddress(3, "5.42.217.167", 10443);
+        applyDatacenterAddress(4, "5.42.217.167", 10443);
+        applyDatacenterAddress(5, "5.42.217.167", 10443);
     }
 
     private String getRegId() {
