@@ -1,17 +1,33 @@
-name: Build etcd Binary
-on: [workflow_dispatch]
+name: Build Teamgram APK
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Download etcd binary
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build Release APK
       run: |
-        curl -L https://github.com/etcd-io/etcd/releases/download/v3.5.14/etcd-v3.5.14-linux-amd64.tar.gz -o etcd.tar.gz
-        tar xzf etcd.tar.gz
-        mv etcd-v3.5.14-linux-amd64/etcd etcd
-        chmod +x etcd
-    - name: Upload artifact
+        chmod +x gradlew
+        ./gradlew :TMessagesProj_App:assembleAfatRelease
+
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: etcd-binary
-        path: etcd
+        name: Teamgram-APK
+        path: TMessagesProj_App/build/outputs/apk/afat/release/
