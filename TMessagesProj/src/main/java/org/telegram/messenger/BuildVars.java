@@ -23,7 +23,6 @@ public class BuildVars {
     public static String APP_HASH = "452b0359b988148995f22ff0f4229750"; // api_hash پیش‌فرض
 
     // آدرس سرور Teamgram شما (بدون SSL)
-    public static String SERVER_URL = "http://5.42.217.167:20020/api";
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
     public static String SAFETYNET_KEY = "";
