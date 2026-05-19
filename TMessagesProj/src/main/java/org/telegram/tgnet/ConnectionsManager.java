@@ -273,7 +273,11 @@ public class ConnectionsManager extends BaseController {
         applyDatacenterAddress(5, "5.42.217.167", 10443);
                 
         this.dcOptions = new ArrayList<>();
-        this.dcOptions.add(new TLRPC.TL_dcOption(1, "5.42.217.167", 10443, false, false));
+        TLRPC.TL_dcOption dcOption = new TLRPC.TL_dcOption();
+dcOption.id = 1;
+dcOption.ip_address = "5.42.217.167";
+dcOption.port = 10443;
+this.dcOptions.add(dcOption);
     }
 
     private String getRegId() {
