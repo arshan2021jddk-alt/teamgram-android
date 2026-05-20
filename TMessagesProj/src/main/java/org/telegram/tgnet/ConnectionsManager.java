@@ -271,6 +271,10 @@ public class ConnectionsManager extends BaseController {
         applyDatacenterAddress(3, "5.42.217.167", 10443);
         applyDatacenterAddress(4, "5.42.217.167", 10443);
         applyDatacenterAddress(5, "5.42.217.167", 10443);
+
+        updateDcSettings();
+
+
                 
         this.dcOptions = new ArrayList<>();
         TLRPC.TL_dcOption dcOption = new TLRPC.TL_dcOption();
